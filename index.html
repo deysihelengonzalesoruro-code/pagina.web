@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Perfumería Verito</title>
+  <meta name="description" content="Perfumería Verito – Elegancia en cada fragancia." />
+
+  <!-- Estilos -->
+  <style>
+    :root {
+      --violeta-claro: #E6E6FA;
+      --violeta-medio: #8A2BE2;
+      --violeta-oscuro: #4B0082;
+      --blanco: #FFFFFF;
+      --sombra: rgba(138, 43, 226, 0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--violeta-claro);
+      color: var(--violeta-oscuro);
+      overflow-x: hidden;
+    }
+
+    header {
+      background-color: var(--violeta-medio);
+      color: var(--blanco);
+      text-align: center;
+      padding: 1.5rem 1rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      min-height: 120vh; /* Asegura espacio para scroll */
+    }
+
+    /* Contenedor 3D */
+    #perfume3D {
+      height: 400px;
+      margin: 2rem auto;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px var(--sombra);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: transparent; /* Importante para Three.js */
+    }
+
+    /* Productos */
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .product {
+      background: var(--blanco);
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px var(--sombra);
+      transition: transform 0.3s ease;
+    }
+
+    .product:hover {
+      transform: translateY(-10px);
+    }
+
+    .product h3 {
+      color: var(--violeta-medio);
+      margin-bottom: 0.5rem;
+    }
+
+    .product p {
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .extra {
+      margin-top: 0.5rem;
+    }
+
+    .read-more {
+      color: var(--violeta-medio);
+      cursor: pointer;
+      margin-top: 0.5rem;
+      display: inline-block;
+      font-weight: bold;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background-color: var(--violeta-oscuro);
+      color: var(--blanco);
+      margin-top: 3rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      #perfume3D {
+        height: 300px;
+      }
+
+      .container {
+        min-height: 100vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>✨ Perfumería Verito</h1>
+    <p>Elegancia en cada fragancia</p>
+  </header>
+
+  <div class="container">
+    <!-- Fondo de partículas (WebGL) -->
+    <div id="tsparticles" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></div>
+
+    <!-- Contenedor para la escena 3D -->
+    <div id="perfume3D"></div>
+
+    <!-- Productos (animados con GSAP) -->
+    <div class="products">
+      <div class="product">
+        <h3>Eterno Amor</h3>
+        <p>Una fragancia floral con notas de jazmín, rosa y vainilla.</p>
+        <p class="extra" style="display:none;">Inspirada en los jardines de la Provenza al atardecer.</p>
+        <span class="read-more">Ver más</span>
+      </div>
+      <div class="product">
+        <h3>Noche Estrellada</h3>
+        <p>Amaderada y sensual, con toques de sándalo, ámbar y bergamota.</p>
+        <p class="extra" style="display:none;">Ideal para quienes aman los misterios de la noche.</p>
+        <span class="read-more">Ver más</span>
+      </div>
+      <div class="product">
+        <h3>Brisa de Verano</h3>
+        <p>Fresca y cítrica, con limón, menta y notas marinas.</p>
+        <p class="extra" style="display:none;">Como un paseo por la costa al amanecer.</p>
+        <span class="read-more">Ver más</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Perfumería Verito. Todos los derechos reservados.</p>
+  </footer>
+
+  <!-- === Librerías desde CDN === -->
+  <!-- tsparticles (WebGL ligero) -->
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <script>
+    // 1. Fondo de partículas (WebGL)
+    tsParticles.load("tsparticles", {
+      fpsLimit: 60,
+      particles: {
+        number: { value: 60, density: { enable: true, value_area: 800 } },
+        color: { value: ["#8A2BE2", "#4B0082", "#E6E6FA"] },
+        shape: { type: "circle" },
+        opacity: { value: 0.5, random: true },
+        size: { value: 3, random: true },
+        move: {
+          enable: true,
+          speed: 1,
+          direction: "none",
+          random: true,
+          straight: false,
+          out_mode: "out",
+          bounce: false
+        }
+      },
+      interactivity: {
+        detect_on: "canvas",
+        events: {
+          onhover: { enable: true, mode: "repulse" },
+          onclick: { enable: true, mode: "push" },
+          resize: true
+        }
+      },
+      detectRetina: true,
+      background: { color: "#E6E6FA" }
+    });
+
+    // 2. Escena 3D con Three.js - Botella de perfume estilizada
+const container = document.getElementById("perfume3D");
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(container.clientWidth, container.clientHeight);
+renderer.setClearColor(0xE6E6FA, 0); // Fondo transparente
+container.appendChild(renderer.domElement);
+
+// --- Cuerpo del frasco (rectangular) ---
+const bodyGeometry = new THREE.BoxGeometry(2, 3, 2); // ancho, alto, profundidad
+const bodyMaterial = new THREE.MeshPhongMaterial({
+  color: 0x9400D3,           // Morado oscuro
+  emissive: 0x6A008F,        // Brillo interno
+  shininess: 100,
+  transparent: true,
+  opacity: 0.85
+});
+const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+body.position.y = 0;
+scene.add(body);
+
+// --- Tapa (cilindro con forma ovalada) ---
+const capGeometry = new THREE.CylinderGeometry(1.2, 1.2, 0.5, 32);
+const capMaterial = new THREE.MeshPhongMaterial({
+  color: 0x4B0082,           // Índigo
+  emissive: 0x300050,
+  shininess: 120
+});
+const cap = new THREE.Mesh(capGeometry, capMaterial);
+cap.position.y = 1.75;       // Colocar encima del cuerpo
+scene.add(cap);
+
+// --- Etiqueta frontal (plano) ---
+const labelGeometry = new THREE.PlaneGeometry(1.2, 1.2);
+const labelMaterial = new THREE.MeshBasicMaterial({
+  color: 0xFFFFFF,
+  transparent: true,
+  opacity: 0.9,
+  side: THREE.DoubleSide
+});
+const label = new THREE.Mesh(labelGeometry, labelMaterial);
+label.position.y = 0;
+label.position.z = 1.01;     // Ligeramente adelante para no quedar dentro del cuerpo
+label.rotation.y = Math.PI;  // Voltear para que mire hacia adelante
+scene.add(label);
+
+// --- Luces ---
+const light = new THREE.PointLight(0xffffff, 1.2, 100);
+light.position.set(5, 5, 5);
+scene.add(light);
+scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+camera.position.z = 6;
+
+// Animación de rotación
+function animate() {
+  requestAnimationFrame(animate);
+  body.rotation.y += 0.01;
+  cap.rotation.y += 0.01;
+  label.rotation.y += 0.01;
+  renderer.render(scene, camera);
+}
+animate();
+
+// Manejo de redimensionamiento
+window.addEventListener("resize", () => {
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(width, height);
+});
+
+    // Manejo de redimensionamiento
+    window.addEventListener("resize", () => {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    });
+
+    // 3. GSAP con ScrollTrigger
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.utils.toArray(".product").forEach((product, i) => {
+      gsap.from(product, {
+        scrollTrigger: {
+          trigger: product,
+          start: "top 85%",
+          toggleActions: "play none none none"
+        },
+        y: 40,
+        opacity: 0,
+        duration: 0.7,
+        ease: "power2.out",
+        delay: i * 0.15
+      });
+    });
+
+    // 4. Interacción: "Ver más / Ver menos"
+    document.querySelectorAll(".read-more").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const extra = btn.previousElementSibling;
+        if (extra.style.display === "none" || !extra.style.display) {
+          extra.style.display = "block";
+          btn.textContent = "Ver menos";
+        } else {
+          extra.style.display = "none";
+          btn.textContent = "Ver más";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
