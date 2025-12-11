@@ -1,329 +1,346 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Perfumería Verito</title>
-  <meta name="description" content="Perfumería Verito – Elegancia en cada fragancia." />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElectroTech | Innovación Extrema</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-  <!-- Estilos -->
-  <style>
-    :root {
-      --violeta-claro: #E6E6FA;
-      --violeta-medio: #8A2BE2;
-      --violeta-oscuro: #4B0082;
-      --blanco: #FFFFFF;
-      --sombra: rgba(138, 43, 226, 0.2);
-    }
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+        /* 1. SECCIÓN HERO Y WEBLG */
+        .hero-section {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: var(--violeta-claro);
-      color: var(--violeta-oscuro);
-      overflow-x: hidden;
-    }
+        #hero-webgl-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
 
-    header {
-      background-color: var(--violeta-medio);
-      color: var(--blanco);
-      text-align: center;
-      padding: 1.5rem 1rem;
-    }
+        .hero-content {
+            position: relative; /* Para que esté sobre el canvas */
+            text-align: center;
+            z-index: 10;
+            padding: 20px;
+        }
+        
+        .hero-content h1 {
+            font-size: 4em;
+            margin-bottom: 0.5em;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        
+        .hero-content p {
+            font-size: 1.5em;
+            color: #ccc;
+        }
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-    }
+        /* 2. SECCIÓN PRODUCTO Y ASSET DE IA */
+        .product-showcase {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
+            background-color: #111;
+        }
+        
+        .product-details {
+            text-align: center;
+            margin-bottom: 50px;
+        }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
-      min-height: 120vh; /* Asegura espacio para scroll */
-    }
+        .ai-asset-container {
+            width: 50vw;
+            height: 50vh;
+            background-color: #0d0d0d;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #ia-asset {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Placeholder para simular la carga */
+            background-image: linear-gradient(45deg, #1f1f1f 25%, #333 75%);
+            display: block;
+        }
+        
+        /* 3. SCROLL EXPERIMENTAL (HORIZONTAL PINNED) */
+        .experimental-scroll-section {
+            /* Altura que dicta cuánto dura el scroll vertical para la animación horizontal */
+            height: 400vh; 
+            position: relative;
+            background-color: #222;
+        }
 
-    /* Contenedor 3D */
-    #perfume3D {
-      height: 400px;
-      margin: 2rem auto;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px var(--sombra);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: transparent; /* Importante para Three.js */
-    }
+        .pin-wrapper {
+            /* El contenedor que se 'pegará' (pin) a la pantalla */
+            position: sticky; 
+            top: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-    /* Productos */
-    .products {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
+        .horizontal-content {
+            display: flex;
+            height: 100%;
+            /* Ancho calculado para 4 slides de 100vw cada uno */
+            width: 400vw; 
+        }
 
-    .product {
-      background: var(--blanco);
-      border-radius: 15px;
-      padding: 1.5rem;
-      box-shadow: 0 5px 15px var(--sombra);
-      transition: transform 0.3s ease;
-    }
-
-    .product:hover {
-      transform: translateY(-10px);
-    }
-
-    .product h3 {
-      color: var(--violeta-medio);
-      margin-bottom: 0.5rem;
-    }
-
-    .product p {
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
-
-    .extra {
-      margin-top: 0.5rem;
-    }
-
-    .read-more {
-      color: var(--violeta-medio);
-      cursor: pointer;
-      margin-top: 0.5rem;
-      display: inline-block;
-      font-weight: bold;
-    }
-
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 1.5rem;
-      background-color: var(--violeta-oscuro);
-      color: var(--blanco);
-      margin-top: 3rem;
-    }
-
-    /* Responsive */
-    @media (max-width: 600px) {
-      h1 {
-        font-size: 2rem;
-      }
-
-      #perfume3D {
-        height: 300px;
-      }
-
-      .container {
-        min-height: 100vh;
-      }
-    }
-  </style>
+        .slide {
+            width: 100vw;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em;
+            flex-shrink: 0;
+            text-shadow: 2px 2px #000;
+        }
+        
+        .slide:nth-child(1) { background: linear-gradient(to right, #0a0a0a, #111); }
+        .slide:nth-child(2) { background: linear-gradient(to right, #111, #222); color: #00ffc8;}
+        .slide:nth-child(3) { background: linear-gradient(to right, #222, #333); }
+        .slide:nth-child(4) { background: linear-gradient(to right, #333, #0a0a0a); color: #00ffff;}
+        
+        .slide p {
+            font-size: 0.5em;
+            margin-top: 10px;
+            color: #aaa;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>✨ Perfumería Verito</h1>
-    <p>Elegancia en cada fragancia</p>
-  </header>
 
-  <div class="container">
-    <!-- Fondo de partículas (WebGL) -->
-    <div id="tsparticles" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></div>
+    <header class="hero-section">
+        <canvas id="hero-webgl-canvas"></canvas>
+        <div class="hero-content">
+            <h1 class="gsap-reveal-text">Descubre el Futuro de la Electrónica</h1>
+            <p class="gsap-reveal-text">Innovación en diseño, rendimiento optimizado con GSAP.</p>
+        </div>
+    </header>
 
-    <!-- Contenedor para la escena 3D -->
-    <div id="perfume3D"></div>
+    <section class="product-showcase" id="ai-product-section">
+        <div class="product-details">
+            <h2>The Quantum Headset Pro</h2>
+            <p>Sonido espacial avanzado. Diseño 100% asistido por <span style="color:#00ffff;">IA generativa.</span></p>
+            <button style="padding: 10px 20px; background-color: #00ffff; border: none; color: #000; cursor: pointer; font-size: 1em; margin-top: 10px;">Comprar Ahora</button>
+        </div>
+        <div class="ai-asset-container">
+            <div id="ia-asset" style="opacity: 0;">
+                 <h3 style="color: #00ffff; text-align: center;">[Simulación de Asset de IA Generativa]</h3>
+            </div>
+        </div>
+    </section>
 
-    <!-- Productos (animados con GSAP) -->
-    <div class="products">
-      <div class="product">
-        <h3>Eterno Amor</h3>
-        <p>Una fragancia floral con notas de jazmín, rosa y vainilla.</p>
-        <p class="extra" style="display:none;">Inspirada en los jardines de la Provenza al atardecer.</p>
-        <span class="read-more">Ver más</span>
-      </div>
-      <div class="product">
-        <h3>Noche Estrellada</h3>
-        <p>Amaderada y sensual, con toques de sándalo, ámbar y bergamota.</p>
-        <p class="extra" style="display:none;">Ideal para quienes aman los misterios de la noche.</p>
-        <span class="read-more">Ver más</span>
-      </div>
-      <div class="product">
-        <h3>Brisa de Verano</h3>
-        <p>Fresca y cítrica, con limón, menta y notas marinas.</p>
-        <p class="extra" style="display:none;">Como un paseo por la costa al amanecer.</p>
-        <span class="read-more">Ver más</span>
-      </div>
+    <section class="experimental-scroll-section" id="scroll-pin-section">
+        <div class="pin-wrapper">
+            <div class="horizontal-content">
+                <div class="slide">
+                    <h3>Poder sin límites</h3>
+                    <p>Chips de última generación para rendimiento extremo.</p>
+                </div>
+                <div class="slide">
+                    <h3>Diseño Minimalista</h3>
+                    <p>Ergonomía perfecta. Creado para el futuro.</p>
+                </div>
+                <div class="slide">
+                    <h3>Batería Extrema</h3>
+                    <p>Días de uso con una sola carga gracias a la nanotecnología.</p>
+                </div>
+                <div class="slide">
+                    <h3>Conectividad 6G</h3>
+                    <p>La velocidad de transmisión más rápida jamás diseñada.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <div style="height: 50vh; background-color: #000; display: flex; justify-content: center; align-items: center;">
+        <h2 style="color: #fff;">Fin de la Demo. ¡Sigue Scrolleando!</h2>
     </div>
-  </div>
 
-  <footer>
-    <p>&copy; 2025 Perfumería Verito. Todos los derechos reservados.</p>
-  </footer>
+    <script>
+        // Registrar el plugin de ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
 
-  <!-- === Librerías desde CDN === -->
-  <!-- tsparticles (WebGL ligero) -->
-  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+        // Variables globales para Three.js
+        let scene, camera, renderer, object;
+        
+        // =========================================================
+        // MÓDULO THREE.JS / WEBLG
+        // =========================================================
 
-  <!-- Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        function initThreeScene(canvas) {
+            // 1. Configuración básica
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.position.z = 5;
 
-  <!-- GSAP + ScrollTrigger -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+            // 2. Crear un objeto 3D (Simulación de un chip flotante)
+            const geometry = new THREE.BoxGeometry(2, 0.5, 2, 10, 1, 10);
+            // Material futurista, metálico y brillante
+            const material = new THREE.MeshStandardMaterial({ 
+                color: 0x00ffcc, 
+                metalness: 0.9, 
+                roughness: 0.1 
+            });
+            object = new THREE.Mesh(geometry, material);
+            scene.add(object);
 
-  <script>
-    // 1. Fondo de partículas (WebGL)
-    tsParticles.load("tsparticles", {
-      fpsLimit: 60,
-      particles: {
-        number: { value: 60, density: { enable: true, value_area: 800 } },
-        color: { value: ["#8A2BE2", "#4B0082", "#E6E6FA"] },
-        shape: { type: "circle" },
-        opacity: { value: 0.5, random: true },
-        size: { value: 3, random: true },
-        move: {
-          enable: true,
-          speed: 1,
-          direction: "none",
-          random: true,
-          straight: false,
-          out_mode: "out",
-          bounce: false
+            // 3. Luces
+            scene.add(new THREE.AmbientLight(0x404040, 5)); 
+            const pointLight = new THREE.PointLight(0xffffff, 2, 100);
+            pointLight.position.set(10, 5, 5);
+            scene.add(pointLight);
+
+            // 4. Animación de loop constante
+            function animate() {
+                requestAnimationFrame(animate);
+                object.rotation.y += 0.005; // Rotación lenta y constante
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // 5. Responsive
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
         }
-      },
-      interactivity: {
-        detect_on: "canvas",
-        events: {
-          onhover: { enable: true, mode: "repulse" },
-          onclick: { enable: true, mode: "push" },
-          resize: true
+
+        // Función que reacciona al scroll, manipulando la escena 3D
+        function updateThreeOnScroll(scrollY) {
+            if (!object) return;
+            
+            // GSAP para interpolación suave de los valores de la escena
+            // Zoom in al scrollear hacia abajo
+            const zoomFactor = Math.min(5, 5 - scrollY * 0.002);
+            // Rotación adicional basada en el scroll
+            const rotationFactor = scrollY * 0.005;
+            
+            gsap.to(object.rotation, { x: rotationFactor, duration: 0.5 });
+            gsap.to(camera.position, { z: zoomFactor, duration: 0.5 });
         }
-      },
-      detectRetina: true,
-      background: { color: "#E6E6FA" }
-    });
 
-    // 2. Escena 3D con Three.js - Botella de perfume estilizada
-const container = document.getElementById("perfume3D");
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setSize(container.clientWidth, container.clientHeight);
-renderer.setClearColor(0xE6E6FA, 0); // Fondo transparente
-container.appendChild(renderer.domElement);
 
-// --- Cuerpo del frasco (rectangular) ---
-const bodyGeometry = new THREE.BoxGeometry(2, 3, 2); // ancho, alto, profundidad
-const bodyMaterial = new THREE.MeshPhongMaterial({
-  color: 0x9400D3,           // Morado oscuro
-  emissive: 0x6A008F,        // Brillo interno
-  shininess: 100,
-  transparent: true,
-  opacity: 0.85
-});
-const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-body.position.y = 0;
-scene.add(body);
+        // =========================================================
+        // MÓDULO GSAP / SCROLL ANIMADO EXPERIMENTAL
+        // =========================================================
 
-// --- Tapa (cilindro con forma ovalada) ---
-const capGeometry = new THREE.CylinderGeometry(1.2, 1.2, 0.5, 32);
-const capMaterial = new THREE.MeshPhongMaterial({
-  color: 0x4B0082,           // Índigo
-  emissive: 0x300050,
-  shininess: 120
-});
-const cap = new THREE.Mesh(capGeometry, capMaterial);
-cap.position.y = 1.75;       // Colocar encima del cuerpo
-scene.add(cap);
+        function initScrollAnimations() {
+            // 1. Animación de Pinning Horizontal (Scroll Experimental)
+            const container = document.querySelector(".horizontal-content");
+            const totalScrollWidth = container.scrollWidth - window.innerWidth;
 
-// --- Etiqueta frontal (plano) ---
-const labelGeometry = new THREE.PlaneGeometry(1.2, 1.2);
-const labelMaterial = new THREE.MeshBasicMaterial({
-  color: 0xFFFFFF,
-  transparent: true,
-  opacity: 0.9,
-  side: THREE.DoubleSide
-});
-const label = new THREE.Mesh(labelGeometry, labelMaterial);
-label.position.y = 0;
-label.position.z = 1.01;     // Ligeramente adelante para no quedar dentro del cuerpo
-label.rotation.y = Math.PI;  // Voltear para que mire hacia adelante
-scene.add(label);
+            gsap.to(container, {
+                x: -totalScrollWidth, // Mover el contenedor a la izquierda
+                ease: "none",
+                scrollTrigger: {
+                    trigger: "#scroll-pin-section",
+                    pin: true, 
+                    scrub: 1, // Enlaza el scroll a la animación
+                    start: "top top",
+                    // El final de la animación está determinado por el ancho total que se debe desplazar
+                    end: () => "+=" + totalScrollWidth 
+                }
+            });
 
-// --- Luces ---
-const light = new THREE.PointLight(0xffffff, 1.2, 100);
-light.position.set(5, 5, 5);
-scene.add(light);
-scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-
-camera.position.z = 6;
-
-// Animación de rotación
-function animate() {
-  requestAnimationFrame(animate);
-  body.rotation.y += 0.01;
-  cap.rotation.y += 0.01;
-  label.rotation.y += 0.01;
-  renderer.render(scene, camera);
-}
-animate();
-
-// Manejo de redimensionamiento
-window.addEventListener("resize", () => {
-  const width = container.clientWidth;
-  const height = container.clientHeight;
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-  renderer.setSize(width, height);
-});
-
-    // Manejo de redimensionamiento
-    window.addEventListener("resize", () => {
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    });
-
-    // 3. GSAP con ScrollTrigger
-    gsap.registerPlugin(ScrollTrigger);
-
-    gsap.utils.toArray(".product").forEach((product, i) => {
-      gsap.from(product, {
-        scrollTrigger: {
-          trigger: product,
-          start: "top 85%",
-          toggleActions: "play none none none"
-        },
-        y: 40,
-        opacity: 0,
-        duration: 0.7,
-        ease: "power2.out",
-        delay: i * 0.15
-      });
-    });
-
-    // 4. Interacción: "Ver más / Ver menos"
-    document.querySelectorAll(".read-more").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const extra = btn.previousElementSibling;
-        if (extra.style.display === "none" || !extra.style.display) {
-          extra.style.display = "block";
-          btn.textContent = "Ver menos";
-        } else {
-          extra.style.display = "none";
-          btn.textContent = "Ver más";
+            // 2. Animación de revelación del texto HERO (GSAP simple)
+            gsap.from(".gsap-reveal-text", {
+                y: 50,
+                opacity: 0,
+                stagger: 0.3,
+                duration: 1.2,
+                ease: "power3.out"
+            });
         }
-      });
-    });
-  </script>
+
+
+        // =========================================================
+        // MÓDULO DE INTEGRACIÓN IA GENERATIVA (SIMULADO)
+        // =========================================================
+
+        function loadIASecundence() {
+            const assetElement = document.getElementById('ia-asset');
+            
+            console.log("Simulación: Cargando y animando el asset diseñado por IA...");
+            
+            // Animación GSAP de "Glitch/Revelación" del asset cuando aparece en la vista
+            gsap.fromTo(assetElement, 
+                { scale: 0.5, opacity: 0, filter: 'blur(10px) brightness(200%)' }, 
+                { 
+                    scale: 1, 
+                    opacity: 1, 
+                    filter: 'blur(0px) brightness(100%)',
+                    duration: 1.5, 
+                    delay: 0.5,
+                    ease: "elastic.out(1, 0.5)", // Efecto elástico para simular "generación"
+                    scrollTrigger: {
+                        trigger: "#ai-product-section",
+                        start: "center 70%", // Comienza la animación cuando la sección entra en el 70% de la pantalla
+                        toggleActions: "play none none reverse" // Reproduce al entrar, revierte al salir
+                    }
+                }
+            );
+        }
+
+        // =========================================================
+        // LÓGICA PRINCIPAL (MAIN)
+        // =========================================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Inicialización de WebGL (Three.js)
+            const canvas = document.getElementById('hero-webgl-canvas');
+            if (canvas) {
+                initThreeScene(canvas);
+            }
+            
+            // 2. Inicialización de Animaciones de Scroll (GSAP ScrollTrigger)
+            initScrollAnimations();
+
+            // 3. Simulación de Integración de Asset Generado por IA
+            loadIASecundence();
+
+            // 4. Conexión de Scroll con Three.js
+            window.addEventListener('scroll', () => {
+                updateThreeOnScroll(window.scrollY);
+            });
+        });
+    </script>
 </body>
 </html>
